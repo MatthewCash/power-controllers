@@ -39,5 +39,13 @@ app.post('/control', async (req, res, next) => {
     }
 });
 
-app.listen(process.env.PORT ?? 8080);
-console.log('Listening...');
+const main = () => {
+    const port = Number(process.env.PORT ?? 8080);
+    const host = process.env.HOST ?? '0.0.0.0';
+
+    app.listen(port, host);
+
+    console.log(`[Ready] Listening on http://${host}:${port}`);
+};
+
+main();
