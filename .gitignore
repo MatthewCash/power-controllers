@@ -10,8 +10,8 @@ yarn-error.log*
 # Keys
 keys/
 
-Actions
-*/
+# Actions
+actions/*/*.sh
 
 # Runtime data
 pids
