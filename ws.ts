@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import { InternalDeviceUpdateRequest, updateDevice } from './main';
+import { devices, InternalDeviceUpdateRequest, updateDevice } from './main';
 
 let ws: WebSocket;
 
@@ -20,6 +20,14 @@ const connect = async () => {
 
 const onOpen = () => {
     console.log('Devices WebSocket Connected!');
+
+    const simpleDevices = [...devices.values()]
+        .map(({ name, id, status }) => ({ name, id, status }))
+        .filter(device => device.status !== null);
+
+    simpleDevices.forEach(device =>
+        sendMessage({ internalDeviceUpdate: device })
+    );
 };
 
 const onMessage = (message: WebSocket.Data) => {

@@ -1,11 +1,12 @@
-import { exec } from 'child_process';
 import { startWebSocketConnection } from './ws';
-import { startPollingComputer } from './actions/computer/polling';
+import { startPollingComputer, computer } from './devices/computer/device';
+import { startPollingLedTree, ledTree } from './devices/usb/device';
 
 export interface Device {
     name: string;
     id: string;
     status: boolean;
+    action?: (status: boolean) => void;
 }
 
 export interface InternalDeviceUpdateRequest {
@@ -21,37 +22,20 @@ export interface InternalDeviceUpdate {
     status: Device['status'];
 }
 
+export const devices = new Map<Device['id'], Device>([
+    ['computer', computer],
+    ['led_tree', ledTree]
+]);
+
 export const updateDevice = (update: InternalDeviceUpdateRequest) => {
-    interface DeviceAction {
-        [id: string]: (status: boolean) => void;
-    }
-
-    const deviceActions: DeviceAction = {
-        computer: status => {
-            const onOff = status ? 'on' : 'off';
-
-            if (!status) return console.log('turning computer off!');
-
-            exec(
-                `/usr/bin/sudo /usr/bin/bash /opt/power-controllers/actions/computer/${onOff}.sh`
-            );
-        },
-        led_tree: status => {
-            const onOff = status ? 'on' : 'off';
-
-            exec(
-                `/usr/bin/sudo /usr/bin/bash /opt/power-controllers/actions/usb/${onOff}.sh`
-            );
-        }
-    };
-
-    deviceActions[update.id]?.(update.status);
+    devices.get(update.id)?.action(update.status);
 };
 
 const main = async () => {
-    await startWebSocketConnection();
+    startWebSocketConnection();
 
     startPollingComputer();
+    startPollingLedTree();
 };
 
 main();
