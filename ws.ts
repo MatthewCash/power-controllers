@@ -5,8 +5,11 @@ let ws: WebSocket;
 
 export const connected = () => ws?.readyState === WebSocket.OPEN;
 
+let alive = false;
+
 const connect = async () => {
     if (connected()) ws.close();
+    alive = false;
 
     ws = new WebSocket(process.env.DEVICES_WS_URL);
 
@@ -14,6 +17,8 @@ const connect = async () => {
     ws.on('message', onMessage);
     ws.on('error', onError);
     ws.on('close', onClose);
+
+    ws.on('ping', () => alive = true);
 
     await new Promise(r => ws.once('open', r));
 };
@@ -52,12 +57,13 @@ const onError = (error: Error) => {
 };
 
 const onClose = () => {
+    alive = false;
     console.log('Devices WebSocket Disconnected!');
 };
 
 export const startWebSocketConnection = () => {
     setInterval(() => {
-        if (ws?.readyState === WebSocket.OPEN) return;
+        if (alive) return;
         connect();
     }, 3000);
 
