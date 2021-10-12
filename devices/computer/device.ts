@@ -18,8 +18,18 @@ export const computer: Device = {
 
 const isEth0Connected = () => !!os.networkInterfaces()['eth0'];
 
-const pollStatus = () => {
-    const newStatus = isEth0Connected();
+const isEth0Gigabit = async () => {
+    const ethtoolResult = await new Promise<string>(resolve => {
+        exec('/usr/sbin/ethtool eth0', (error, stdout) => resolve(stdout));
+    });
+
+    return ethtoolResult
+        .split('\n')
+        .some(line => line.trim() === 'Speed: 1000Mb/s');
+};
+
+const pollStatus = async () => {
+    const newStatus = await isEth0Gigabit();
 
     if (newStatus === computer.status) return;
     if (!connected()) return;
