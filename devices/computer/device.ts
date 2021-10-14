@@ -11,7 +11,7 @@ export const computer: Device = {
         const onOff = status ? 'on' : 'off';
 
         exec(
-            `/usr/bin/sudo /usr/bin/bash /opt/power-controllers/devices/computer/${onOff}.sh`
+            `/usr/bin/sudo /usr/bin/bash /opt/power-controllers/devices/computer/scripts/${onOff}.sh`
         );
     }
 };
