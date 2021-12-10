@@ -18,12 +18,21 @@ const connect = async () => {
     ws.on('error', onError);
     ws.on('close', onClose);
 
-    ws.on('ping', () => alive = true);
+    ws.on('ping', () => (alive = true));
 
     await new Promise(r => ws.once('open', r));
 };
 
 const onOpen = () => {
+    const authToken = process.env.DEVICES_AUTHORIZATION as string;
+    if (authToken) {
+        ws.send(
+            JSON.stringify({
+                authorization: authToken
+            })
+        );
+    }
+
     console.log('Devices WebSocket Connected!');
 
     const simpleDevices = [...devices.values()]
@@ -37,6 +46,7 @@ const onOpen = () => {
 
 const onMessage = (message: WebSocket.Data) => {
     let data;
+
     try {
         data = JSON.parse(message.toString());
     } catch {
