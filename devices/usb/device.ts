@@ -1,6 +1,6 @@
 import { exec } from 'child_process';
 import { Device, InternalDeviceUpdate } from '../../main';
-import { connected, sendMessage } from '../../ws';
+import { connected, sendCommands } from '../../ws';
 
 export const ledTree: Device = {
     name: 'LED Tree',
@@ -41,7 +41,7 @@ const pollStatus = async () => {
 const sendUpdate = () => {
     const internalDeviceUpdate: InternalDeviceUpdate = ledTree;
 
-    sendMessage({ internalDeviceUpdate });
+    sendCommands({ internalDeviceUpdate });
 };
 
 export const startPollingLedTree = () => {

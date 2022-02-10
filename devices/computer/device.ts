@@ -1,7 +1,7 @@
 import os from 'os';
 import { exec } from 'child_process';
 import { Device, InternalDeviceUpdate } from '../../main';
-import { connected, sendMessage } from '../../ws';
+import { connected, sendCommands } from '../../ws';
 
 export const computer: Device = {
     name: 'Computer',
@@ -41,7 +41,7 @@ const pollStatus = async () => {
 const sendUpdate = () => {
     const internalDeviceUpdate: InternalDeviceUpdate = computer;
 
-    sendMessage({ internalDeviceUpdate });
+    sendCommands({ internalDeviceUpdate });
 };
 
 export const startPollingComputer = () => {
