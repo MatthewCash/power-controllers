@@ -1,5 +1,10 @@
 import WebSocket from 'ws';
-import { devices, InternalDeviceUpdateRequest, updateDevice } from './main';
+import {
+    devices,
+    InternalDeviceUpdate,
+    InternalDeviceUpdateRequest,
+    updateDevice
+} from './main';
 
 let ws: WebSocket;
 
@@ -41,7 +46,7 @@ const sendControlledDevices = () => {
 };
 
 const onAuthorized = () => {
-    sendControlledDevices();
+    // sendControlledDevices();
 };
 
 const onMessage = (message: WebSocket.Data) => {
@@ -83,12 +88,18 @@ const onMessage = (message: WebSocket.Data) => {
 
         const simpleRequiredDevices = [...devices.values()]
             .map(({ name, id, status }) => ({ name, id, status }))
-            .filter(device => device.status !== null)
-            .filter(device => requiredDevices.includes(device.name));
+            .filter(device => device.status.state !== null)
+            .filter(device => requiredDevices.includes(device.id));
 
-        simpleRequiredDevices.forEach(device =>
-            sendCommands({ internalDeviceUpdate: device })
-        );
+        simpleRequiredDevices.forEach(device => {
+            const internalDeviceUpdate: InternalDeviceUpdate = {
+                name: device.name,
+                id: device.id,
+                status: device.status
+            };
+
+            sendCommands({ internalDeviceUpdate });
+        });
     }
 };
 
@@ -111,6 +122,8 @@ export const startWebSocketConnection = () => {
 };
 
 export const sendMessage = (data: any) => {
+    console.log('sending');
+    console.log(data);
     ws.send(JSON.stringify(data));
 };
 

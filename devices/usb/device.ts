@@ -5,7 +5,11 @@ import { connected, sendCommands } from '../../ws';
 export const ledTree: Device = {
     name: 'LED Tree',
     id: 'led_tree',
-    status: null,
+    status: {
+        online: false,
+        state: false,
+        changingTo: null
+    },
     action: async status => {
         const onOff = status ? 'on' : 'off';
 
@@ -31,15 +35,22 @@ const isUsbPowered = async () => {
 const pollStatus = async () => {
     const newStatus = await isUsbPowered();
 
-    if (newStatus === ledTree.status) return;
+    if (newStatus === ledTree?.status?.state) return;
     if (!connected()) return;
 
-    ledTree.status = newStatus;
+    ledTree.status.changingTo = null;
+    ledTree.status.online = true;
+    ledTree.status.state = newStatus;
+
     sendUpdate();
 };
 
 const sendUpdate = () => {
-    const internalDeviceUpdate: InternalDeviceUpdate = ledTree;
+    const internalDeviceUpdate: InternalDeviceUpdate = {
+        name: ledTree.name,
+        id: ledTree.id,
+        status: ledTree.status
+    };
 
     sendCommands({ internalDeviceUpdate });
 };

@@ -6,9 +6,13 @@ import { connected, sendCommands } from '../../ws';
 export const computer: Device = {
     name: 'Computer',
     id: 'computer',
-    status: null,
-    action: status => {
-        const onOff = status ? 'on' : 'off';
+    status: {
+        online: false,
+        state: false,
+        changingTo: null
+    },
+    action: state => {
+        const onOff = state ? 'on' : 'off';
 
         exec(
             `/usr/bin/sudo /usr/bin/bash /opt/power-controllers/devices/computer/scripts/${onOff}.sh`
@@ -31,10 +35,10 @@ const isEth0Gigabit = async () => {
 const pollStatus = async () => {
     const newStatus = await isEth0Gigabit();
 
-    if (newStatus === computer.status) return;
+    if (newStatus === computer?.status?.state) return;
     if (!connected()) return;
 
-    computer.status = newStatus;
+    computer.status.state = newStatus;
     sendUpdate();
 };
 
